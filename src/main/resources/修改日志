@@ -1,0 +1,46 @@
+记录修改位置，方便以后升级
+
+1./xxl-job-admin/src/main/java/com/xxl/job/admin/controller/JobGroupController.java  
+	修改save增加@PermessionLimit(limit=false)
+	修改代码
+2./xxl-job-admin/src/main/java/com/xxl/job/admin/controller/JobInfoController.java
+  	 增加方法regist
+3./xxl-job-admin/src/main/java/com/xxl/job/admin/core/model/XxlJobInfo.java
+	增加属性 private boolean overWriteCron;  	 
+4./xxl-job-admin/src/main/java/com/xxl/job/admin/service/XxlJobService.java
+	增加接口方法regist
+5./xxl-job-admin/src/main/java/com/xxl/job/admin/service/impl/XxlJobServiceImpl.java
+	增加方法regist
+	修改方法remove，增加三行代码
+	
+6./xxl-job-admin/src/main/java/com/xxl/job/admin/dao/XxlJobInfoDao.java
+	修改方法pageList，增加入参@Param("glueType") String glueType
+	增加三个方法
+	public int deleteTriggers(@Param("jobGroup") int jobGroup,@Param("id") int id);
+	public int deleteJobDetails(@Param("jobGroup") int jobGroup,@Param("id") int id);
+	public int deleteCronTriggers(@Param("jobGroup") int jobGroup,@Param("id") int id);
+	
+7./xxl-job-admin/src/main/resources/mybatis-mapper/XxlJobInfoMapper.xml
+	修改方法pageList,增加入参
+			<if test="glueType != null and glueType != ''">
+				AND t.glue_type = #{glueType}
+			</if>
+	增加三个方法
+	<!-- 1 -->
+	<delete id="deleteTriggers" parameterType="java.util.HashMap">
+		delete from xxl_job_qrtz_triggers 
+		where trigger_group=#{jobGroup} and trigger_name=#{id}
+	</delete>
+	<!-- 2 -->
+	<delete id="deleteJobDetails" parameterType="java.util.HashMap">
+		delete from xxl_job_qrtz_job_details 
+		where job_group=#{jobGroup} and job_name=#{id}
+
+	</delete>
+	<!-- 3 -->
+	<delete id="deleteCronTriggers" parameterType="java.util.HashMap">
+		delete from xxl_job_qrtz_cron_triggers 
+		where trigger_group=#{jobGroup} and trigger_name=#{id}
+
+	</delete>	
+	
